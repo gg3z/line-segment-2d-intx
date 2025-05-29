@@ -73,14 +73,9 @@ int main() {
 #endif
 
   // generate_random_case(1000, 0.1, "random_segs_1000_1.txt");
-  string case_file("current_case.txt");
-  ifstream segfile(case_file);
-  if (segfile.is_open()) {
-    string line;
-    std::getline(segfile, line);
-
-    test_intersector_from_file(line);
-  }
+  string segfile("temp_case.txt");
+  // cout << "reading " << segfile << endl;
+  test_intersector_from_file(segfile);
 
   return 0;
 }
