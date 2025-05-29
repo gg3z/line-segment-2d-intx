@@ -11,9 +11,9 @@ Steps:
 There are a few pre-defined cases, to see them: ls random*.txt
 Custom cases can be created manually, the format is very simple: each line holds one 2d segment (x1 y1 x2 y2)
 To run a custom case:
-0.1: save it in the top level directory ('my_custom_case.txt')
-0.2: replace the line in current_case.txt with 'my_custom_case.txt' without the quotes
-Now do steps 2-4 above with your custom case.
+- save it in the top level directory ('my_custom_case.txt')
+- replace the line in current_case.txt with 'my_custom_case.txt' without the quotes
+- do steps 2-4 above with your custom case.
 
 Notes about the implementation:
 A simple but fairly complete c++ code that returns the number of intersections in the input set within a specified tolerance (default = 1.e-12)
