@@ -3,11 +3,14 @@
 #include <chrono>
 #include <cstdint>
 #include <fstream>
+#include <iomanip>
+#include <ios>
 #include <iostream>
+#include <memory>
 #include <random>
+#include <vector>
 
-static double getRandomDouble()
-{
+static double getRandomDoubleUnit() {
   // Seed the random number generator
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -19,27 +22,23 @@ static double getRandomDouble()
   return dis(gen);
 }
 
-static Pnt2 getRandomPoint(double scale = 1.)
-{
-  return Pnt2{getRandomDouble() * scale, getRandomDouble() * scale};
+static Pnt2 getRandomPoint(double scale = 1.) {
+  return Pnt2{getRandomDoubleUnit() * scale, getRandomDoubleUnit() * scale};
 }
 
-static bool inUnitSquare(const Pnt2 &P)
-{
+static bool inUnitSquare(const Pnt2 &P) {
   return P.x >= 0. && P.x <= 1. && P.y >= 0. && P.y <= 1.;
 }
 
 // one point of the output segment will lie in the unit square
 // lower bound for length is to avoid creating many very short segments
 // somewhat arbitrary but makes sense to me :)
-static Lineseg getRandomSeg(double maxLen)
-{
+static Lineseg getRandomSeg(double maxLen) {
   auto P = getRandomPoint();
   Lineseg L(P, P);
-  while (L.len() < 0.5 * maxLen || L.len() > maxLen)
-  {
-    L.E.x = P.x + getRandomDouble() * maxLen;
-    L.E.y = P.y + getRandomDouble() * maxLen;
+  while (L.len() < 0.5 * maxLen || L.len() > maxLen) {
+    L.E.x = P.x + (2. * getRandomDoubleUnit() - 1.) * maxLen;
+    L.E.y = P.y + (2. * getRandomDoubleUnit() - 1.) * maxLen;
   }
   return L;
 }
@@ -57,12 +56,9 @@ int test_intersector_1() // simple case with just 2 intersections
   int nExpected = 2, nIntx = SI.numIntx();
   // 1 transverse and 1 overlap
   cout << "num intersections = " << nIntx;
-  if (nIntx == nExpected)
-  {
+  if (nIntx == nExpected) {
     cout << " as expected\n";
-  }
-  else
-  {
+  } else {
     cout << " but expected " << nExpected << endl;
   }
   return 0;
@@ -155,7 +151,8 @@ int test_intersector_2() // larger case with 56 intersections
   int nExpected = 56, nIntx = SI.numIntx(nFiltered);
   auto end_time = std::chrono::high_resolution_clock::now();
   cout << "Runtime in milliseconds = "
-       << std::chrono::duration<double, std::milli>(end_time - start_time).count()
+       << std::chrono::duration<double, std::milli>(end_time - start_time)
+              .count()
        << endl;
 
   // total pairs: 630
@@ -164,12 +161,9 @@ int test_intersector_2() // larger case with 56 intersections
   cout << "num filtered pairs = " << nFiltered[0] << ", " << nFiltered[1]
        << endl;
   cout << "num intersections = " << nIntx;
-  if (nIntx == nExpected)
-  {
+  if (nIntx == nExpected) {
     cout << " as expected\n";
-  }
-  else
-  {
+  } else {
     cout << " but expected " << nExpected << endl;
   }
   return 0;
@@ -177,12 +171,11 @@ int test_intersector_2() // larger case with 56 intersections
 
 // large case with many segments; all are close to or inside the unit square
 int test_intersector_3(ofstream &out, int nSegments, double maxSegLength,
-                       bool BF)
-{
+                       bool BF) {
   LsegIntersector SI;
   uint32_t id = 0;
-  for (int k = 0; k < nSegments; ++k)
-  {
+  vector<Lineseg> segments;
+  for (int k = 0; k < nSegments; ++k) {
     Lineseg L = getRandomSeg(maxSegLength);
     if (L.len() > maxSegLength)
       cout << "$$$ segment is too long $$$\n";
@@ -190,13 +183,18 @@ int test_intersector_3(ofstream &out, int nSegments, double maxSegLength,
       cout << "$$$ segment is too short $$$\n";
 
     L.id = id++;
+    segments.emplace_back(L);
     SI.addSeg(L);
   }
+
+  if (1) {
+    write_segments_to_file(segments, "random_segments_1000.txt");
+  }
+
   cout << "number of input segments = " << nSegments << " ----------" << endl;
   cout << "max segment length in unit square = " << maxSegLength << endl;
 
-  if (BF)
-  {
+  if (BF) {
     auto start_time = std::chrono::high_resolution_clock::now();
     int nIntx = SI.numIntx_BF();
     auto end_time = std::chrono::high_resolution_clock::now();
@@ -218,6 +216,97 @@ int test_intersector_3(ofstream &out, int nSegments, double maxSegLength,
       std::chrono::duration<double, std::milli>(end_time - start_time).count();
   out << nFiltered[1] << ' ' << run_time << endl;
   cout << "Efficient - Runtime in milliseconds = " << run_time << endl;
+  cout << "num filtered pairs = " << nFiltered[0] << ", " << nFiltered[1]
+       << endl;
+  cout << "num intersections = " << nIntx << endl;
+  return 0;
+}
+
+// generated the requested number of random segments in the unit square
+// length of each generated segment will be between 0.5*maxSegLen and maxSegLen
+shared_ptr<vector<Lineseg>> random_segment_generator(int nSeg,
+                                                     double maxSegLen) {
+  uint32_t id = 0;
+  vector<Lineseg> segments;
+  for (int k = 0; k < nSeg; ++k) {
+    Lineseg L = getRandomSeg(maxSegLen);
+    if (L.len() > maxSegLen)
+      cout << "$$$ segment is too long $$$\n";
+    else if (L.len() < 0.5 * maxSegLen)
+      cout << "$$$ segment is too short $$$\n";
+
+    L.id = id++;
+    segments.emplace_back(L);
+  }
+  return make_shared<vector<Lineseg>>(segments);
+}
+
+shared_ptr<vector<Lineseg>> read_segments_from_file(string segfile) {
+  ifstream inSegments(segfile);
+  vector<Lineseg> segments;
+  Pnt2 P1, P2;
+  uint32_t id = 0;
+
+  if (!inSegments.is_open()) {
+    return nullptr;
+  }
+  string line;
+  while (std::getline(inSegments, line)) {
+    istringstream iss(line);
+    iss >> P1.x >> P1.y >> P2.x >> P2.y;
+    segments.emplace_back(Lineseg(P1, P2, id++));
+  }
+  inSegments.close();
+  return make_shared<vector<Lineseg>>(segments);
+}
+
+void write_segments_to_file(vector<Lineseg> &segments, string segfile) {
+  ofstream fOut(segfile);
+  if (!fOut.is_open())
+    cout << "!!!!! unable to open file !!!!!\n";
+
+  for (const auto &seg : segments) {
+    fOut << fixed << showpoint << setprecision(6) << seg.S.x << ' ' << seg.S.y
+         << ' ' << seg.E.x << ' ' << seg.E.y << endl;
+  }
+}
+
+void generate_random_case(int nSeg, double maxSegLen, string caseName) {
+  shared_ptr<vector<Lineseg>> segments =
+      random_segment_generator(nSeg, maxSegLen);
+  write_segments_to_file(*segments, caseName);
+}
+
+int test_intersector_from_file(string fileIn) {
+  shared_ptr<vector<Lineseg>> inSegments = read_segments_from_file(fileIn);
+  if (inSegments == nullptr) {
+    cout << "!!!!! file not found !!!!!\n";
+    return -1;
+  }
+  if (inSegments->size() == 0) {
+    cout << "!!!!! no segments read from input file !!!!!\n";
+    return -1;
+  }
+
+  LsegIntersector SI;
+  uint32_t id = 0;
+
+  for (auto &seg : *inSegments) {
+    seg.id = id++;
+    SI.addSeg(seg);
+  }
+  cout << fileIn << ": number of input segments = " << inSegments->size()
+       << " ----------" << endl;
+
+  int nFiltered[2] = {-1, -1};
+  auto start_time = std::chrono::high_resolution_clock::now();
+  int nIntx = SI.numIntx(nFiltered);
+  auto end_time = std::chrono::high_resolution_clock::now();
+
+  auto run_time =
+      std::chrono::duration<double, std::milli>(end_time - start_time).count();
+  // out << nFiltered[1] << ' ' << run_time << endl;
+  cout << "Runtime in milliseconds = " << run_time << endl;
   cout << "num filtered pairs = " << nFiltered[0] << ", " << nFiltered[1]
        << endl;
   cout << "num intersections = " << nIntx << endl;

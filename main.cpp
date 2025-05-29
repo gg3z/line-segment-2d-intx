@@ -49,24 +49,38 @@
  *  depend on the implementation
  */
 
-int main()
-{
-  // test_lineseg_intx();
+int main() {
+#if 0
+  test_lineseg_intx();
   cout << "--- running test case 1 -----------\n";
   int n1 = test_intersector_1();
   cout << "--- running test case 2 -----------\n";
   int n2 = test_intersector_2();
   cout << "--- running test case 3 -----------\n";
 
-  const int nSegments = 10000;
-  std::string fname = "data_10000.txt";
+  const int nSegments = 1000;
+  std::string fname = "data_1000.txt";
   std::ofstream timing_out(fname);
 
+  test_intersector_3(timing_out, nSegments, 0.05);
+
   // for testing and benchmarking purposes
-  for (double maxSegLen = 0.01; maxSegLen < 0.21; maxSegLen += 0.01) {
-    [[maybe_unused]] int n3 =
-        test_intersector_3(timing_out, nSegments, maxSegLen);
-  }
+  // for (double maxSegLen = 0.01; maxSegLen < 0.21; maxSegLen += 0.01) {
+  //   [[maybe_unused]] int n3 =
+  //       test_intersector_3(timing_out, nSegments, maxSegLen);
+  // }
   timing_out.close();
+#endif
+
+  // generate_random_case(1000, 0.1, "random_segs_1000_1.txt");
+  string case_file("current_case.txt");
+  ifstream segfile(case_file);
+  if (segfile.is_open()) {
+    string line;
+    std::getline(segfile, line);
+
+    test_intersector_from_file(line);
+  }
+
   return 0;
 }

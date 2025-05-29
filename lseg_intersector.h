@@ -2,18 +2,18 @@
 #include "interval.h"
 #include "lseg.h"
 #include <cstdint>
+#include <fstream>
+#include <string>
 #include <vector>
 
 using namespace std;
 
-class LsegIntersector
-{
+class LsegIntersector {
   vector<Lineseg> segs_;
   double tol_;
 
   // this function can easily be generalized to any 2d vector
-  bool overlaps_along_y(const pair<uint32_t, uint32_t> &op) const
-  {
+  bool overlaps_along_y(const pair<uint32_t, uint32_t> &op) const {
     auto &seg1 = segs_[op.first];
     intvl int1 = {min(seg1.S.y, seg1.E.y) - tol_,
                   max(seg1.S.y, seg1.E.y) + tol_};
@@ -23,8 +23,7 @@ class LsegIntersector
     return intvl::intvl_ovlp(int1, int2);
   }
 
-  bool overlaps_along_diag_pos(const pair<uint32_t, uint32_t> &op) const
-  {
+  bool overlaps_along_diag_pos(const pair<uint32_t, uint32_t> &op) const {
     auto &seg1 = segs_[op.first];
     auto d1S = 0.5 * (seg1.S.x + seg1.S.y);
     auto d1E = 0.5 * (seg1.E.x + seg1.E.y);
@@ -36,8 +35,7 @@ class LsegIntersector
     return intvl::intvl_ovlp(int1, int2);
   }
 
-  bool overlaps_along_diag_neg(const pair<uint32_t, uint32_t> &op) const
-  {
+  bool overlaps_along_diag_neg(const pair<uint32_t, uint32_t> &op) const {
     auto &seg1 = segs_[op.first];
     auto d1S = 0.5 * (seg1.S.x - seg1.S.y);
     auto d1E = 0.5 * (seg1.E.x - seg1.E.y);
@@ -54,8 +52,7 @@ public:
 
   void setTol(double tol) { tol_ = tol; }
 
-  int addSeg(const Lineseg &seg)
-  {
+  int addSeg(const Lineseg &seg) {
     // leaving id tracking to the caller
     segs_.emplace_back(seg);
     return (int)segs_.size();
@@ -72,3 +69,12 @@ int test_intersector_1();
 int test_intersector_2();
 int test_intersector_3(ofstream &out, int nSegments, double maxSegLength,
                        bool BF = false);
+
+shared_ptr<vector<Lineseg>> random_segment_generator(int nSeg, double maxLen);
+
+shared_ptr<vector<Lineseg>> read_segments_from_file(string segfile);
+void write_segments_to_file(vector<Lineseg> &segments, string segfile);
+
+void generate_random_case(int nSeg, double maxsegLen, string caseName);
+
+int test_intersector_from_file(string segfile);
