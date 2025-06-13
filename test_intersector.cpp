@@ -298,17 +298,16 @@ int test_intersector_from_file(string fileIn) {
   cout << fileIn << ": number of input segments = " << inSegments->size()
        << " ----------" << endl;
 
-  int nFiltered[2] = {-1, -1};
+  int nFiltered = -1;
   auto start_time = std::chrono::high_resolution_clock::now();
-  int nIntx = SI.numIntx(nFiltered);
+  int nIntx = SI.numIntx(&nFiltered);
   auto end_time = std::chrono::high_resolution_clock::now();
 
   auto run_time =
       std::chrono::duration<double, std::milli>(end_time - start_time).count();
   // out << nFiltered[1] << ' ' << run_time << endl;
   cout << "Runtime in milliseconds = " << run_time << endl;
-  cout << "num filtered pairs = " << nFiltered[0] << ", " << nFiltered[1]
-       << endl;
+  cout << "num filtered pairs = " << nFiltered << endl;
   cout << "num intersections = " << nIntx << endl;
   return 0;
 }

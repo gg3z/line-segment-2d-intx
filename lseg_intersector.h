@@ -47,6 +47,23 @@ class LsegIntersector {
     return intvl::intvl_ovlp(int1, int2);
   }
 
+  bool overlaps_along_y_and_diags(const pair<uint32_t, uint32_t> &op) const {
+    auto &S1 = segs_[op.first].S;
+    auto &S2 = segs_[op.second].S;
+    auto &E1 = segs_[op.first].E;
+    auto &E2 = segs_[op.second].E;
+    return (max(S1.y, E1.y) + 2. * tol_ > min(S2.y, E2.y)) &&
+           (min(S1.y, E1.y) < max(S2.y, E2.y) + 2. * tol_) &&
+           (max(S1.x + S1.y, E1.x + E1.y) + 4. * tol_ >
+            min(S2.x + S2.y, E2.x + E2.y)) &&
+           (min(S1.x + S1.y, E1.x + E1.y) <
+            max(S2.x + S2.y, E2.x + E2.y) + 4. * tol_) &&
+           (max(S1.x - S1.y, E1.x - E1.y) + 4. * tol_ >
+            min(S2.x - S2.y, E2.x - E2.y)) &&
+           (min(S1.x - S1.y, E1.x - E1.y) <
+            max(S2.x - S2.y, E2.x - E2.y) + 4. * tol_);
+  }
+
 public:
   LsegIntersector() : tol_(1.e-12) {}
 
@@ -61,7 +78,7 @@ public:
   int numIntx_BF(); // brute force - intersect every pair
 
   // 2-stage pair filtration
-  int numIntx(int filtered_pairs[2] = nullptr);
+  int numIntx(int *filtered_pairs = nullptr);
 };
 
 // initial set if tests - considerably more should be added

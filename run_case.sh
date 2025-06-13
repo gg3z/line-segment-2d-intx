@@ -11,7 +11,7 @@ temp_case="temp_case.txt"
 cp "$case" "$temp_case"
 sleep 0.1
 # Path to your executable
-executable_path="./lineseg.exe"
+executable_path="./build/lineseg.exe"
 
 # Execute the program
 # $executable_path "$@"

@@ -1,7 +1,0 @@
-# ninja log v6
-6	578	7702319676095491	CMakeFiles/lineseg.dir/lseg.cpp.obj	e15b9692a54dadef
-3	615	7702319676065481	CMakeFiles/lineseg.dir/interval.cpp.obj	f4c77aedc70a086f
-12	635	7702319676157715	CMakeFiles/lineseg.dir/main.cpp.obj	5b8400305e638d21
-8	1258	7702319676117717	CMakeFiles/lineseg.dir/lseg_intersector.cpp.obj	738dae4bc721abf9
-10	1356	7702319676137717	CMakeFiles/lineseg.dir/test_intersector.cpp.obj	a58b63b7e6005afe
-1356	1435	7702319689593073	lineseg.exe	eb89b059b6a7b240
