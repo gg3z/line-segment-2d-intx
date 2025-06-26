@@ -277,7 +277,7 @@ void generate_random_case(int nSeg, double maxSegLen, string caseName) {
   write_segments_to_file(*segments, caseName);
 }
 
-int test_intersector_from_file(string fileIn) {
+int test_intersector_from_file(string fileIn, bool BF) {
   shared_ptr<vector<Lineseg>> inSegments = read_segments_from_file(fileIn);
   if (inSegments == nullptr) {
     cout << "!!!!! file not found !!!!!\n";
@@ -297,6 +297,19 @@ int test_intersector_from_file(string fileIn) {
   }
   cout << fileIn << ": number of input segments = " << inSegments->size()
        << " ----------" << endl;
+
+  if (BF) {
+    auto start_time = std::chrono::high_resolution_clock::now();
+    int nIntx = SI.numIntx_BF();
+    auto end_time = std::chrono::high_resolution_clock::now();
+
+    auto run_time =
+        std::chrono::duration<double, std::milli>(end_time - start_time)
+            .count();
+    cout << "Brute force - Runtime in milliseconds = " << run_time << endl;
+    cout << "num intersections = " << nIntx << endl;
+    return 0;
+  }
 
   int nFiltered = -1;
   auto start_time = std::chrono::high_resolution_clock::now();

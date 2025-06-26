@@ -94,4 +94,4 @@ void write_segments_to_file(vector<Lineseg> &segments, string segfile);
 
 void generate_random_case(int nSeg, double maxsegLen, string caseName);
 
-int test_intersector_from_file(string segfile);
+int test_intersector_from_file(string segfile, bool BF = false);

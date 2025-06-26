@@ -2,10 +2,10 @@
 #include "interval.h"
 #include "lseg.h"
 #include <algorithm>
-#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <ranges>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -74,8 +74,10 @@ int LsegIntersector::numIntx(int *filtered_pairs) {
 int LsegIntersector::numIntx_BF() {
   int nIntx = 0;
   double params[2];
-  for (size_t is = 0; is < segs_.size(); ++is) {
-    for (size_t js = is + 1; js < segs_.size(); ++js) {
+  // trying out ranges for practice - really not needed here
+  auto segIndices = views::iota(size_t{0}, segs_.size());
+  for (auto is : segIndices) {
+    for (auto js : views::iota(is + 1, segs_.size())) {
       if (Lineseg::intx(segs_.at(is), segs_.at(js), params) > 0)
         ++nIntx;
     }
