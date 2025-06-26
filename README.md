@@ -1,12 +1,14 @@
 # line-segment-2d-intx
 Implements an efficient computation of all intersections of a set of 2D line segments
 
-With the latest commit (29 may 2025), this repo can be used out of the box.
+This repo can be built in VS code with most c++20 compilers (I use clang 19.1.2)
 Steps:
-1. git clone to a local directory and cd to it
-2. execute ./run_case.sh random_segs_100_1.txt
-3. the console output will show the runtime and the number of intersections (and a couple of intermediate numbers)
-4. the segments can be visualized by running: python graph_segments_2d.py random_segs_100_1.txt
+1. git clone to a local directory
+2. open folder in VS code and configure (need CMake and ninja or equivalent)
+3. Build (successful if ./build/lineseg.exe is present)
+4. execute ./run_case.sh random_segs_100_1.txt (or any other text file of same format)
+5. the console output will show the runtime and the number of intersections (and a couple of intermediate numbers)
+6. the segments can be visualized by running: python graph_segments_2d.py random_segs_100_1.txt
 
 There are a few pre-defined cases, to see them: ls random*.txt
 Custom cases can be created manually, the format is very simple: each line holds one 2d segment [x1 y1 x2 y2].
